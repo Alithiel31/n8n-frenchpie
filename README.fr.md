@@ -160,14 +160,7 @@ n8n Community Edition (sans licence, ce qui est le cas ici) permet plusieurs com
 
 ## Points d'attention / pièges rencontrés
 
-1. **cgroups mémoire désactivés par défaut** sur certaines images Raspberry Pi OS/Debian — `mem_limit` du compose est ignoré sans `cgroup_enable=memory cgroup_memory=1` dans `cmdline.txt` (+ reboot). Voir étape 2.
-2. **`N8N_SECURE_COOKIE=false` nécessaire** tant qu'il n'y a pas de TLS devant n8n (HTTP simple, Tailscale-only) — sinon le cookie de session est refusé et le login casse silencieusement.
-3. **`extra_hosts: host.docker.internal:host-gateway` ne marche pas** sur un réseau Docker custom si jamais Postgres tourne en local sur le même hôte que n8n (cas différent de ce déploiement, où Postgres est distant) — toujours hardcoder la vraie gateway du réseau custom dans ce cas.
-4. **`N8N_ENCRYPTION_KEY` ne doit jamais être régénérée après coup** sans plan de migration — c'est la clé qui déchiffre toutes les credentials des workflows existants.
-5. **Deux ID différents sur une Machine Identity Infisical** : l'"ID" affiché sur la page de détails de l'identité n'est pas le "Client ID" de sa méthode Universal Auth (visible seulement en ouvrant le panneau "Universal Auth"). Les confondre donne un 401 `Invalid credentials` sans indice utile. Voir étape 5.
-6. **`DOCKER_HOST` prend le pas sur `DOCKER_CONTEXT`** — si la variable d'environnement `DOCKER_HOST` est déjà définie (profil shell), `export DOCKER_CONTEXT=<nom>` seul ne change rien tant que `DOCKER_HOST` reste défini. Docker l'indique dans un warning explicite.
-7. **Secrets gérés via Infisical**, jamais de mot de passe en clair dans `.env` ou committé — voir `deploy.sh`.
-8. **Image et migrations lentes sur matériel contraint** (Pi 3B+, carte SD) — plusieurs dizaines de minutes pour le pull, plusieurs minutes pour les migrations DB au premier démarrage. Patience plutôt qu'interruption.
+Huit pièges rencontrés en mettant ça en route sur du matériel contraint (cgroups, cookies sécurisés, les deux ID d'Infisical, la priorité de `DOCKER_HOST`, les pulls d'image lents, et plus encore) — détail complet symptômes/causes/corrections dans [`docs/troubleshooting.fr.md`](docs/troubleshooting.fr.md). Un aperçu plus approfondi de l'architecture et du raisonnement derrière (pourquoi pas de Traefik, pourquoi Postgres reste distant, le flux des secrets) est dans [`docs/architecture.fr.md`](docs/architecture.fr.md).
 
 ## Statut
 

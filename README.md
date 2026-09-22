@@ -160,14 +160,7 @@ n8n Community Edition (unlicensed, which is the case here) supports multiple use
 
 ## Points of attention / gotchas encountered
 
-1. **Memory cgroups disabled by default** on some Raspberry Pi OS/Debian images — the compose file's `mem_limit` is ignored without `cgroup_enable=memory cgroup_memory=1` in `cmdline.txt` (+ reboot). See step 2.
-2. **`N8N_SECURE_COOKIE=false` is required** as long as there's no TLS in front of n8n (plain HTTP, Tailscale-only) — otherwise the session cookie is rejected and login silently breaks.
-3. **`extra_hosts: host.docker.internal:host-gateway` doesn't work** on a custom Docker network if Postgres ever runs locally on the same host as n8n (a different case from this deployment, where Postgres is remote) — always hardcode the custom network's real gateway in that case.
-4. **`N8N_ENCRYPTION_KEY` must never be rotated afterwards** without a migration plan — it's the key that decrypts every credential stored in existing workflows.
-5. **Two different IDs on an Infisical Machine Identity**: the "ID" shown on the identity's details page is not the "Client ID" of its Universal Auth method (only visible by opening the "Universal Auth" panel). Mixing them up gives a 401 `Invalid credentials` with no useful hint. See step 5.
-6. **`DOCKER_HOST` overrides `DOCKER_CONTEXT`** — if the `DOCKER_HOST` environment variable is already set (shell profile), `export DOCKER_CONTEXT=<name>` alone changes nothing as long as `DOCKER_HOST` stays set. Docker flags this with an explicit warning.
-7. **Secrets managed via Infisical**, never a plaintext password in `.env` or committed — see `deploy.sh`.
-8. **Slow image pull and migrations on constrained hardware** (Pi 3B+, SD card) — several tens of minutes for the pull, several minutes for DB migrations on first startup. Patience rather than interruption.
+Eight gotchas were hit while getting this running on constrained hardware (cgroups, secure cookies, Infisical's two IDs, `DOCKER_HOST` precedence, slow image pulls, and more) — full write-up with symptoms/causes/fixes in [`docs/troubleshooting.md`](docs/troubleshooting.md). A deeper look at the architecture and the reasoning behind it (why no Traefik, why Postgres stays remote, the secrets flow) is in [`docs/architecture.md`](docs/architecture.md).
 
 ## Status
 
