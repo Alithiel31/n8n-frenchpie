@@ -1,0 +1,35 @@
+volumes:
+  n8n-data:
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - GENERIC_TIMEZONE=Europe/Paris
+      - TZ=Europe/Paris
+      - N8N_HOST=${N8N_HOST}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://${N8N_HOST}:5678/
+      # n8n force les cookies "secure" par defaut, ce qui casse le login en HTTP simple
+      # (pas de TLS ici, usage Tailscale interne uniquement)
+      - N8N_SECURE_COOKIE=false
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=${DB_HOST}
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=n8n_app
+      - DB_POSTGRESDB_PASSWORD=${N8N_DB_PASS}
+    volumes:
+      - n8n-data:/home/node/.n8n
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    # RAM tres serree sur FrenchPie (Pi 3B+, ~900 Mo total) : limite dure
+    # pour eviter qu'n8n n'affame le reste du systeme.
+    mem_limit: 450m
